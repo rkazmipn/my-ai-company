@@ -19,7 +19,7 @@ def create_content(topic):
         # เปลี่ยนเป็น gemini-2.0-flash (มาตรฐานปี 2026)
         # ถ้าพี่ยังอยากใช้ 1.5 ให้ลองเปลี่ยนเป็น 'gemini-1.5-flash-latest'
         response = client.models.generate_content(
-            model="gemini-2.0-flash", 
+            model="gemini-2.5-flash", 
             contents=f"เขียนบทความภาษาไทยที่น่าสนใจเกี่ยวกับ {topic} โดยใช้ข้อมูลนี้:\n{context}\n\nเขียนในรูปแบบ Markdown"
         )
         
