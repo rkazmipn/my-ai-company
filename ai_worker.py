@@ -1,26 +1,31 @@
 import os
-import google.generativeai as genai
+from google import genai # เปลี่ยนเป็นตัวใหม่ล่าสุดปี 2026
 from tavily import TavilyClient
 
-# ตั้งค่า API
+# 1. ตั้งค่าการเชื่อมต่อ (Client)
+client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 tavily = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
-genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-model = genai.GenerativeModel('gemini-1.5-flash')
 
 def create_content(topic):
-    # 1. ค้นหาข้อมูลล่าสุด
+    print(f"กำลังหาข้อมูลเรื่อง: {topic}...")
+    # 2. ค้นหาข้อมูลล่าสุดจาก Tavily
     search_result = tavily.search(query=topic, search_depth="advanced")
-    context = search_result['results']
+    context = str(search_result['results'])
     
-    # 2. ให้ Gemini เขียนบทความจากข้อมูลที่หาได้
-    prompt = f"เขียนบทความภาษาไทยที่น่าสนใจเกี่ยวกับ {topic} โดยใช้ข้อมูลนี้: {context}. เขียนในรูปแบบ Markdown"
-    response = model.generate_content(prompt)
+    print("กำลังให้ Gemini เขียนบทความ...")
+    # 3. ใช้คำสั่งแบบใหม่ของปี 2026
+    response = client.models.generate_content(
+        model="gemini-1.5-flash",
+        contents=f"เขียนบทความภาษาไทยที่น่าสนใจเกี่ยวกับ {topic} โดยใช้ข้อมูลนี้: {context}. เขียนในรูปแบบ Markdown"
+    )
     
-    # 3. บันทึกเป็นไฟล์ .md เพื่อให้หน้าเว็บนำไปแสดงผล
-    filename = f"src/content/post.md"
+    # 4. บันทึกไฟล์บทความ
+    filename = "src/content/post.md"
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     with open(filename, "w", encoding="utf-8") as f:
+        # ใช้ .text เพื่อดึงเนื้อหาออกมา
         f.write(response.text)
+    print("✅ บันทึกไฟล์สำเร็จ!")
 
 if __name__ == "__main__":
-    create_content("เจาะลึกเทคโนโลยีรถยนต์ไฟฟ้าล่าสุด 2026") # เปลี่ยนหัวข้อได้ที่นี่
+    create_content("เจาะลึกเทคโนโลยีรถยนต์ไฟฟ้าล่าสุด 2026")
