@@ -1,14 +1,24 @@
 name: AI Content Factory
 on:
-  workflow_dispatch: # ปุ่มกดสั่งงานเองใน GitHub
+  workflow_dispatch:
   schedule:
     - cron: '0 0 * * *'
+
+permissions: # เพิ่มสิทธิ์ให้หุ่นยนต์ตรงๆ ในโค้ดเลย
+  contents: write
+  pages: write
+  id-token: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      # สร้างโฟลเดอร์ที่จำเป็นให้ก่อนเลย กันเหนียว
+      - name: Ensure Directories Exist
+        run: mkdir -p src/pages src/content
+
       - uses: actions/setup-python@v4
         with: { python-version: '3.10' }
       
@@ -32,9 +42,9 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
 
-      # === ส่วนที่เชื่อม Discord ===
       - name: Send Discord Notification
+        if: always() # ให้มันส่งบอกพี่ด้วยว่ามันพังหรือมันผ่าน
         run: |
           curl -H "Content-Type: application/json" \
-          -d '{"content": "🚀 **AI รายงานตัว!** เขียนบทความเสร็จแล้วและอัปโหลดขึ้นเว็บเรียบร้อย ไปเช็กได้เลยที่ลิงก์ GitHub Pages ของลูกพี่ครับ!"}' \
+          -d '{"content": "สถานะการทำงาน: ${{ job.status }} \nไปดู Log ได้ที่: https://github.com/${{ github.repository }}/actions"}' \
           ${{ secrets.DISCORD_WEBHOOK }}
