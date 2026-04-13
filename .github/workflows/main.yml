@@ -1,8 +1,8 @@
 name: AI Content Factory
 on:
-  workflow_dispatch: # ยอมให้เรากดปุ่มรันเองได้
+  workflow_dispatch: # ปุ่มกดสั่งงานเองใน GitHub
   schedule:
-    - cron: '0 0 * * *' # ตั้งเวลาให้รันทุกเที่ยงคืนอัตโนมัติ
+    - cron: '0 0 * * *'
 
 jobs:
   build:
@@ -31,3 +31,10 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
+
+      # === ส่วนที่เชื่อม Discord ===
+      - name: Send Discord Notification
+        run: |
+          curl -H "Content-Type: application/json" \
+          -d '{"content": "🚀 **AI รายงานตัว!** เขียนบทความเสร็จแล้วและอัปโหลดขึ้นเว็บเรียบร้อย ไปเช็กได้เลยที่ลิงก์ GitHub Pages ของลูกพี่ครับ!"}' \
+          ${{ secrets.DISCORD_WEBHOOK }}
