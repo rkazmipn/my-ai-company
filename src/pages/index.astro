@@ -1,0 +1,15 @@
+---
+// โค้ดส่วนนี้จะดึงเนื้อหาที่ AI เขียนมาแสดงผล
+const posts = await Astro.glob('../content/*.md');
+---
+<html>
+  <head><title>My AI Company</title></head>
+  <body>
+    <h1>ข่าวสารล่าสุดจาก AI</h1>
+    {posts.map(post => (
+      <article>
+        <div set:html={post.compiledContent()} />
+      </article>
+    ))}
+  </body>
+</html>
