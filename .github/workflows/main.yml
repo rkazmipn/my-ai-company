@@ -12,44 +12,32 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # แก้คำเตือน Node 20
     steps:
       - uses: actions/checkout@v4
 
-      - name: 📋 Check Files (ตรวจเช็กไฟล์)
-        run: |
-          ls -R
-          echo "เช็กว่ามีไฟล์ครบไหม..."
-          [ -f ai_worker.py ] && echo "✅ ai_worker.py อยู่" || echo "❌ ai_worker.py หาย!"
-          [ -f package.json ] && echo "✅ package.json อยู่" || echo "❌ package.json หาย!"
-
-      - name: 🐍 Setup Python
-        uses: actions/setup-python@v5 # อัปเดตเป็น v5
+      - name: 🐍 Setup Python 3.11
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11' # ขยับเวอร์ชันตาม Log แนะนำ
       
       - name: 📦 Install Python Dependencies
-        run: pip install google-generativeai tavily-python
+        run: |
+          pip install google-genai tavily-python 
+          # เปลี่ยนจาก google-generativeai เป็น google-genai
 
-      - name: 🤖 Run AI Worker (สมองเริ่มทำงาน)
+      - name: 🤖 Run AI Worker
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
         run: python ai_worker.py
 
-      - name: 🚀 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24 # ใช้ตัวล่าสุดตามคำเตือน
-
-      - name: 🏗️ Build Website (อบขนมปัง)
+      - name: 🏗️ Build & Deploy Website
         run: |
           npm install
           npm run build
 
       - name: 🌏 Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4 # อัปเดตเป็น v4
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
@@ -58,5 +46,5 @@ jobs:
         if: always()
         run: |
           curl -H "Content-Type: application/json" \
-          -d '{"content": "สถานะ: ${{ job.status }} \nเช็ก Log: https://github.com/${{ github.repository }}/actions"}' \
+          -d '{"content": "สถานะ: ${{ job.status }} \nเช็กหน้าเว็บได้ที่นี่ครับลูกพี่!"}' \
           ${{ secrets.DISCORD_WEBHOOK }}
