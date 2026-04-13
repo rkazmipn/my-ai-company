@@ -34,7 +34,6 @@ jobs:
           npm install
           npm run build
 
-      # === ปรับส่วนนี้เพื่อให้เข้ากับหน้า Settings ที่พี่ส่งมา ===
       - name: 📤 Upload Artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -43,3 +42,9 @@ jobs:
       - name: 🌏 Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: 📢 Discord Alert
+        if: always()
+        run: |
+          curl -H "Content-Type: application/json" \
+          -d '{"content": "สถานะ: ${{ job.status }} \nเช็กหน้าเว็บได้ที่นี่ครับลูกพี่!"}' \
+          ${{ secrets.DISCORD_WEBHOOK }}
