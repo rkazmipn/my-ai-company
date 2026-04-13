@@ -18,12 +18,10 @@ jobs:
       - name: 🐍 Setup Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11' # ขยับเวอร์ชันตาม Log แนะนำ
+          python-version: '3.11'
       
       - name: 📦 Install Python Dependencies
-        run: |
-          pip install google-genai tavily-python 
-          # เปลี่ยนจาก google-generativeai เป็น google-genai
+        run: pip install google-genai tavily-python 
 
       - name: 🤖 Run AI Worker
         env:
@@ -31,20 +29,17 @@ jobs:
           TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
         run: python ai_worker.py
 
-      - name: 🏗️ Build & Deploy Website
+      - name: 🏗️ Build Website
         run: |
           npm install
           npm run build
 
-      - name: 🌏 Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+      # === ปรับส่วนนี้เพื่อให้เข้ากับหน้า Settings ที่พี่ส่งมา ===
+      - name: 📤 Upload Artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          path: ./dist # บอก GitHub ว่าเอาไฟล์ในโฟลเดอร์ dist ไปทำเว็บ
 
-      - name: 📢 Discord Alert
-        if: always()
-        run: |
-          curl -H "Content-Type: application/json" \
-          -d '{"content": "สถานะ: ${{ job.status }} \nเช็กหน้าเว็บได้ที่นี่ครับลูกพี่!"}' \
-          ${{ secrets.DISCORD_WEBHOOK }}
+      - name: 🌏 Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
